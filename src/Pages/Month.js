@@ -11,12 +11,14 @@ import {ListBox} from "primereact/listbox";
 import {Dialog} from "primereact/dialog";
 import {Card} from "primereact/card";
 import {DataScroller} from "primereact/datascroller";
+import {Calendar} from "primereact/calendar";
 
 const Month = () => {
     const tabs= useContext(MenuContext)
     const history = useHistory();
     const [editing,setEditing] = useState(false)
     const [selectedSubtask,setSelectedSubtask] = useState(undefined)
+    const [date,setDate] = useState()
     const subtasks = [
         { name: 'Подзадача 1', code: 'NY' },
         { name: 'Подзадача 2', code: 'RM' },
@@ -84,7 +86,7 @@ const Month = () => {
     ]
     const dateTemplate = (date,options) => {
         return (
-            <div className="flex">
+            <div className="flex p-2">
                 <div className="flex flex-column col-4 ml-5 pb-4">
                     <h2>
                         {
@@ -121,7 +123,7 @@ const Month = () => {
                     </div>
                 </div>
                 <div className="flex flex-column col-4 ml-8 pb-4">
-                    <h3>Описание планов на день</h3>
+                    <h3>Заметки к планам на день</h3>
                     <p>Lorem ipsum Lorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsumLorem ipsum</p>
                 </div>
 
@@ -138,6 +140,9 @@ const Month = () => {
                          history.push(tabs.data[e.index].redirectUrl)
                      }}/>
             <Card className="h-full">
+                <div className="ml-6 mb-2 flex">
+                    <Calendar value={date} onChange={(e) => setDate(e.value)} showIcon />
+                </div>
                 <DataScroller inline scrollHeight="100vh" value={data} className="h-full" rows={5} itemTemplate={dateTemplate}>
 
                 </DataScroller>

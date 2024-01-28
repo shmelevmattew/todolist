@@ -8,13 +8,13 @@ import {
     Route,
     Link,
 } from 'react-router-dom';
-import Auth from "./Components/Auth";
-import Home from "./Components/Home";
+import Auth from "./Pages/Auth";
+import Home from "./Pages/Home";
 import {MenuContext} from "./Contexts/MenuContext";
 import {useState} from "react";
-import Month from "./Components/Month";
-import Account from "./Components/Account";
-import NotFound from "./Components/NotFound";
+import Month from "./Pages/Month";
+import Account from "./Pages/Account";
+import NotFound from "./Pages/NotFound";
 
 function App() {
     const [activeTab,setActiveTab] = useState(1)
