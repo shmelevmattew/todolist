@@ -1,19 +1,30 @@
-import React from 'react';
+import React, {createContext} from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import 'primeicons/primeicons.css';
-
+import Store from "./Store/store"
 import { PrimeReactProvider } from 'primereact/api';
+import {observer} from "mobx-react-lite";
+export const store = new Store();
+export const Context = createContext({
+    store,
+})
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
   <React.StrictMode>
       <BrowserRouter>
-          <PrimeReactProvider>
-              <App />
-          </PrimeReactProvider>
+          <Context.Provider value={{
+              store
+          }}>
+              <PrimeReactProvider>
+                  <App />
+              </PrimeReactProvider>
+          </Context.Provider>
       </BrowserRouter>
   </React.StrictMode>
 );

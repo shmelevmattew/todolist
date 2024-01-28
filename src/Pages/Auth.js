@@ -1,9 +1,25 @@
-import React from 'react';
+import React, {useContext, useState} from 'react';
 import {TabPanel, TabView} from "primereact/tabview";
 import { InputText } from 'primereact/inputtext';
 import {Button} from "primereact/button";
 import {Link} from "react-router-dom";
+import {Context} from "../index";
+import {observer} from "mobx-react-lite";
 const Auth = () => {
+    const [loginData,setLoginData] = useState({
+        email:"",
+        password:""
+    })
+    function handleChangeLogin(e,target){
+        setLoginData((prev)=>{
+            return {...prev,[target]:e.target.value}
+        })
+        console.log(loginData)
+    }
+
+
+    const {store} = useContext(Context);
+
     return (
         <div className="flex h-screen">
             <div>
@@ -14,11 +30,17 @@ const Auth = () => {
                     <TabView>
                         <TabPanel header="Вход">
                             <form action="" className="flex flex-column w-30rem gap-2">
-                                <InputText placeholder="Введите E-mail"/>
-                                <InputText placeholder="Введите пароль"/>
+                                <InputText value={loginData.email} onChange={(e)=>handleChangeLogin(e,'email')} placeholder="Введите E-mail"/>
+                                <InputText value={loginData.password} onChange={(e)=>handleChangeLogin(e,'password')} placeholder="Введите пароль"/>
                                 <div className="flex justify-content-end">
                                     <Button link><Link to={"/"}>Вы забыли пароль?</Link></Button>
-                                    <Button label="Готово" />
+                                    <Button onClick={(e) => {
+                                        e.preventDefault()
+                                        store.login(loginData.email,loginData.password).then((res)=>{
+                                            console.log(res)
+                                        })
+                                        let res =  store.login(loginData.email,loginData.password)
+                                    }} label="Готово" />
                                 </div>
                             </form>
                         </TabPanel>
@@ -41,4 +63,4 @@ const Auth = () => {
     );
 };
 
-export default Auth;
+export default observer(Auth);
