@@ -141,7 +141,9 @@ const Month = () => {
                      }}/>
             <Card className="h-full">
                 <div className="ml-6 mb-2 flex">
-                    <Calendar value={date} onChange={(e) => setDate(e.value)} showIcon />
+                    <Calendar value={date} onChange={(e) =>{ setDate(e.value)
+                        console.log(date)
+                    }} showIcon />
                 </div>
                 <DataScroller inline scrollHeight="100vh" value={data} className="h-full" rows={5} itemTemplate={dateTemplate}>
 

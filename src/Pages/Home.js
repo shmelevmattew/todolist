@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { TabMenu } from 'primereact/tabmenu';
 import {MenuContext} from "../Contexts/MenuContext";
 import {Card} from "primereact/card";
@@ -11,11 +11,25 @@ import { useHistory } from 'react-router-dom';
 import { Dialog } from 'primereact/dialog'
 import {InputText} from "primereact/inputtext";
 import {ListBox} from "primereact/listbox";
+import ToDoService from "../Services/ToDoService"
+import {store} from "../index";
 const Home = () => {
     const tabs= useContext(MenuContext)
     const [editing,setEditing] = useState(false)
+    const [editSelect,setEditSelect] = useState({})
     const [selectedSubtask,setSelectedSubtask] = useState(undefined)
+    const [data,setData] = useState([])
     const history = useHistory();
+    const today = new Date()
+    const todayString = ('0' + today.getDate()).slice(-2) + '-'
+        + ('0' + (today.getMonth()+1)).slice(-2) + '-'
+        + today.getFullYear();
+    const tomorrowString = ('0' + today.getDate() + 1).slice(-2) + '-'
+        + ('0' + (today.getMonth()+1)).slice(-2) + '-'
+        + today.getFullYear();
+    const afterTommorowString = ('0' + today.getDate() + 2).slice(-2) + '-'
+        + ('0' + (today.getMonth()+1)).slice(-2) + '-'
+        + today.getFullYear();
     const subtasks = [
         { name: 'Подзадача 1', code: 'NY' },
         { name: 'Подзадача 2', code: 'RM' },
@@ -23,6 +37,24 @@ const Home = () => {
         { name: 'Подзадача 4', code: 'IST' },
         { name: 'Подзадача 5', code: 'PRS' }
     ];
+
+    useEffect(()=>{
+        if(!store.isAuth){
+            history.push("/auth")
+        }
+    },[store.isAuth])
+
+    useEffect(()=>{
+        ToDoService.getAllTasks().then(function(res){
+            const responseData = res.data
+            console.log(responseData)
+            setData(responseData)
+        })
+    },[setData])
+
+
+
+
     return (
         <div className="h-screen root">
             <TabMenu model={tabs.data}
@@ -32,54 +64,120 @@ const Home = () => {
                          console.log(e)
                          history.push(tabs.data[e.index].redirectUrl)
                      }}/>
-            <div className="flex align-items-start mt-8 h-full">
+            <div className="flex align-items-start justify-content-center mt-8 h-full">
                 <Card className="col-3 ml-5 mr-5 relative" title={"Сегодня"} subTitle={"27 января"}>
                     <ScrollPanel className="h-25rem">
-                        <div className="flex justify-content-between align-items-center">
-                            <h4>Текст определенной задачи</h4>
-                            <i onClick={()=>setEditing(true)} className="pi pi-pencil cursor-pointer"></i>
-                            <Checkbox className="mr-3"></Checkbox>
-                        </div>
-                        <div className="flex justify-content-between align-items-center">
-                            <p className="ml-4">Текст подзадачи</p>
-                            <Checkbox className="mr-3"></Checkbox>
-                        </div>
-                        <div className="flex justify-content-between align-items-center">
-                            <p className="ml-4">Текст подзадачи</p>
-                            <Checkbox className="mr-3"></Checkbox>
-                        </div>
-                        <Divider></Divider>
-                        <div className="flex justify-content-between align-items-center">
-                            <h4>Текст определенной задачи</h4>
-                            <i className="pi pi-pencil"></i>
-                            <Checkbox className="mr-3"></Checkbox>
-                        </div>
-                        <Divider></Divider>
-                        <div className="flex justify-content-between align-items-center">
-                            <h4>Текст определенной задачи</h4>
-                            <i className="pi pi-pencil"></i>
-                            <Checkbox className="mr-3"></Checkbox>
-                        </div>
-                        <Divider></Divider>
-                        <div className="flex justify-content-between align-items-center">
-                            <h4>Текст определенной задачи</h4>
-                            <Checkbox className="mr-3"></Checkbox>
-                        </div>
-                        <Divider></Divider>
-                        <div className="flex justify-content-between align-items-center">
-                            <h4>Текст определенной задачи</h4>
-                            <Checkbox className="mr-3"></Checkbox>
-                        </div>
-                        <Divider></Divider>
+                        {
+                            data.map(el=>{
+                                const elDate = el.completionTime.substring(8,10) + "-" +el.completionTime.substring(5,7) + "-" + el.completionTime.substring(0,4)
+                                if(todayString === elDate){
+                                    console.log(el)
+                                    return(
+                                        <>
+                                            <div className="flex justify-content-between align-items-center">
+                                                <div className="flex align-items-center">
+                                                    <h4>{el.title.length > 20 ? el.title.substring(0,20) + "..." : el.title}</h4>
+                                                    <i onClick={()=>setEditing(true)} className="pi pi-pencil cursor-pointer ml-4"></i>
+                                                </div>
+                                                <Checkbox checked={el.status} className="mr-3"></Checkbox>
+                                            </div>
+                                            {
+                                                el.subItems.map((subitem)=>{
+                                                    return (
+                                                        <>
+                                                            <div className="flex justify-content-between align-items-center">
+                                                                <p className="ml-4">{subitem.title}</p>
+                                                                <Checkbox  checked={subitem.status} className="mr-3"></Checkbox>
+                                                            </div>
+                                                        </>
+                                                    )
+                                                })
+                                            }
+                                            <Divider></Divider>
+                                        </>
+                                    )
+                                }
+                            })
+                        }
                     </ScrollPanel>
                     <Button onClick={()=>setEditing(true)} className="w-2rem h-2rem button_position md:absolute flex align-items-center justify-content-center" icon="pi pi-plus"/>
                     <ProgressBar className="mt-5" value={50}></ProgressBar>
                 </Card>
-                <Card className="col-3" title={"Завтра"} subTitle={"27 января"}>
-
+                <Card className="col-3 ml-5 mr-5 relative" title={"Завтра"} subTitle={"28 января"}>
+                    <ScrollPanel className="h-25rem">
+                        {
+                            data.map(el=>{
+                                const elDate = el.completionTime.substring(8,10) + "-" +el.completionTime.substring(5,7) + "-" + el.completionTime.substring(0,4)
+                                if(tomorrowString === elDate){
+                                    console.log(el)
+                                    return(
+                                        <>
+                                            <div className="flex justify-content-between align-items-center">
+                                                <div className="flex align-items-center">
+                                                    <h4>{el.title.length > 20 ? el.title.substring(0,20) + "..." : el.title}</h4>
+                                                    <i onClick={()=>setEditing(true)} className="pi pi-pencil cursor-pointer ml-4"></i>
+                                                </div>
+                                                <Checkbox checked={el.status} className="mr-3"></Checkbox>
+                                            </div>
+                                            {
+                                                el.subItems.map((subitem)=>{
+                                                    return (
+                                                        <>
+                                                            <div className="flex justify-content-between align-items-center">
+                                                                <p className="ml-4">{subitem.title}</p>
+                                                                <Checkbox  checked={subitem.status} className="mr-3"></Checkbox>
+                                                            </div>
+                                                        </>
+                                                    )
+                                                })
+                                            }
+                                            <Divider></Divider>
+                                        </>
+                                    )
+                                }
+                            })
+                        }
+                    </ScrollPanel>
+                    <Button onClick={()=>setEditing(true)} className="w-2rem h-2rem button_position md:absolute flex align-items-center justify-content-center" icon="pi pi-plus"/>
+                    <ProgressBar className="mt-5" value={50}></ProgressBar>
                 </Card>
-                <Card className="col-3" title={"Послезавтра"} subTitle={"27 января"}>
-
+                <Card className="col-3 ml-5 mr-5 relative" title={"Послезавтра"} subTitle={"29 января"}>
+                    <ScrollPanel className="h-25rem">
+                        {
+                            data.map(el=>{
+                                const elDate = el.completionTime.substring(8,10) + "-" +el.completionTime.substring(5,7) + "-" + el.completionTime.substring(0,4)
+                                if(afterTommorowString  === elDate){
+                                    console.log(el)
+                                    return(
+                                        <>
+                                            <div className="flex justify-content-between align-items-center">
+                                                <div className="flex align-items-center">
+                                                    <h4>{el.title.length > 20 ? el.title.substring(0,20) + "..." : el.title}</h4>
+                                                    <i onClick={()=>setEditing(true)} className="pi pi-pencil cursor-pointer ml-4"></i>
+                                                </div>
+                                                <Checkbox checked={el.status} className="mr-3"></Checkbox>
+                                            </div>
+                                            {
+                                                el.subItems.map((subitem)=>{
+                                                    return (
+                                                        <>
+                                                            <div className="flex justify-content-between align-items-center">
+                                                                <p className="ml-4">{subitem.title}</p>
+                                                                <Checkbox  checked={subitem.status} className="mr-3"></Checkbox>
+                                                            </div>
+                                                        </>
+                                                    )
+                                                })
+                                            }
+                                            <Divider></Divider>
+                                        </>
+                                    )
+                                }
+                            })
+                        }
+                    </ScrollPanel>
+                    <Button onClick={()=>setEditing(true)} className="w-2rem h-2rem button_position md:absolute flex align-items-center justify-content-center" icon="pi pi-plus"/>
+                    <ProgressBar className="mt-5" value={50}></ProgressBar>
                 </Card>
             </div>
             <Dialog header="Задача" visible={editing} style={{ width: '40vw' }} onHide={() => setEditing(false)}>

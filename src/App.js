@@ -21,7 +21,7 @@ function App() {
     const menuItems = [
         {
             id:1,
-            label:"Неделя",
+            label:"Ближайшее",
             icon:"pi pi-list",
             redirectUrl:"/",
         },

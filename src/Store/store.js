@@ -5,8 +5,11 @@ import {API_URL} from "../Http/index";
 
 export default class Store {
     user = {} ;
+    userId = 0 ;
+    history = {};
     isAuth = false;
     isLoading = false;
+
 
     constructor() {
         makeAutoObservable(this);
@@ -14,6 +17,10 @@ export default class Store {
 
     setAuth(bool) {
         this.isAuth = bool;
+    }
+
+    setUserId(id){
+        this.userId = id
     }
 
     setUser(user) {
@@ -31,6 +38,7 @@ export default class Store {
             localStorage.setItem('token', response.data.accessToken);
             this.setAuth(true);
             this.setUser(response.data.user);
+            this.setUserId(response.data.id);
         } catch (e) {
             console.log(e.response?.data?.message);
         }

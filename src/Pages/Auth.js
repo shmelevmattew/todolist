@@ -1,8 +1,8 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {TabPanel, TabView} from "primereact/tabview";
 import { InputText } from 'primereact/inputtext';
 import {Button} from "primereact/button";
-import {Link} from "react-router-dom";
+import {Link, useHistory} from "react-router-dom";
 import {Context} from "../index";
 import {observer} from "mobx-react-lite";
 const Auth = () => {
@@ -10,15 +10,32 @@ const Auth = () => {
         email:"",
         password:""
     })
+    const [registrationData,setRegistrationData] = useState({
+        name:"",
+        email:"",
+        password:"",
+        passwordRepeat:""
+    })
     function handleChangeLogin(e,target){
         setLoginData((prev)=>{
             return {...prev,[target]:e.target.value}
         })
-        console.log(loginData)
     }
 
+    function handleChangeRegistration(e,target){
+        setRegistrationData((prev)=>{
+            return {...prev,[target]:e.target.value}
+        })
+    }
 
     const {store} = useContext(Context);
+    const history = useHistory()
+
+    useEffect(()=>{
+        if(store.isAuth){
+            history.push("/")
+        }
+    },[store.isAuth])
 
     return (
         <div className="flex h-screen">
@@ -39,17 +56,16 @@ const Auth = () => {
                                         store.login(loginData.email,loginData.password).then((res)=>{
                                             console.log(res)
                                         })
-                                        let res =  store.login(loginData.email,loginData.password)
                                     }} label="Готово" />
                                 </div>
                             </form>
                         </TabPanel>
                         <TabPanel header="Регистрация">
                             <form action="" className="flex flex-column w-30rem gap-2">
-                                <InputText placeholder="Введите имя"/>
-                                <InputText placeholder="Введите Email"/>
-                                <InputText placeholder="Введите пароль"/>
-                                <InputText placeholder="Введите пароль повторно"/>
+                                <InputText value={registrationData.name} onChange={(e)=>handleChangeRegistration(e,'name')} placeholder="Введите имя"/>
+                                <InputText value={registrationData.email} onChange={(e)=>handleChangeRegistration(e,'email')} placeholder="Введите Email"/>
+                                <InputText value={registrationData.password} onChange={(e)=>handleChangeRegistration(e,'password')} placeholder="Введите пароль"/>
+                                <InputText value={registrationData.passwordRepeat} onChange={(e)=>handleChangeRegistration(e,'passwordRepeat')} placeholder="Введите пароль повторно"/>
                                 <div className="flex justify-content-end">
                                     <Button link><Link to={"/"}>Вы забыли пароль?</Link></Button>
                                     <Button label="Готово" />
