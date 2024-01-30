@@ -136,7 +136,6 @@ const Month = () => {
                      activeIndex={tabs.activeTab}
                      onTabChange={(e) => {
                          tabs.setActiveTab(e.index);
-                         console.log(e)
                          history.push(tabs.data[e.index].redirectUrl)
                      }}/>
             <Card className="h-full">

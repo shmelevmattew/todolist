@@ -12,24 +12,29 @@ import { Dialog } from 'primereact/dialog'
 import {InputText} from "primereact/inputtext";
 import {ListBox} from "primereact/listbox";
 import ToDoService from "../Services/ToDoService"
-import {store} from "../index";
+import {Calendar} from "primereact/calendar";
+import DateService from "../Services/DateService"
+import {Context} from "../index";
 const Home = () => {
     const tabs= useContext(MenuContext)
+    const store = useContext(Context)
+
     const [editing,setEditing] = useState(false)
-    const [editSelect,setEditSelect] = useState({})
+    const [creatingNew,setCreatingNew] = useState(false)
+
+    const [taskForm,setTaksForm] = useState({
+    })
+
+    const [newTask,setNewTask] = useState({
+        name:"",
+        description:"",
+        date:""
+    })
+
     const [selectedSubtask,setSelectedSubtask] = useState(undefined)
     const [data,setData] = useState([])
     const history = useHistory();
     const today = new Date()
-    const todayString = ('0' + today.getDate()).slice(-2) + '-'
-        + ('0' + (today.getMonth()+1)).slice(-2) + '-'
-        + today.getFullYear();
-    const tomorrowString = ('0' + today.getDate() + 1).slice(-2) + '-'
-        + ('0' + (today.getMonth()+1)).slice(-2) + '-'
-        + today.getFullYear();
-    const afterTommorowString = ('0' + today.getDate() + 2).slice(-2) + '-'
-        + ('0' + (today.getMonth()+1)).slice(-2) + '-'
-        + today.getFullYear();
     const subtasks = [
         { name: 'Подзадача 1', code: 'NY' },
         { name: 'Подзадача 2', code: 'RM' },
@@ -42,16 +47,21 @@ const Home = () => {
         if(!store.isAuth){
             history.push("/auth")
         }
-    },[store.isAuth])
+    },[])
 
     useEffect(()=>{
         ToDoService.getAllTasks().then(function(res){
             const responseData = res.data
-            console.log(responseData)
             setData(responseData)
+            console.log(responseData)
         })
     },[setData])
 
+    function handleEdit(task){
+        setTaksForm(task)
+        console.log(taskForm)
+        setEditing(true)
+    }
 
 
 
@@ -61,23 +71,25 @@ const Home = () => {
                      activeIndex={tabs.activeTab}
                      onTabChange={(e) => {
                          tabs.setActiveTab(e.index);
-                         console.log(e)
-                         history.push(tabs.data[e.index].redirectUrl)
+                         if(tabs.activeTab.label == "Выход"){
+                             store.logout()
+                             tabs.setActiveTab(0)
+                         }
                      }}/>
             <div className="flex align-items-start justify-content-center mt-8 h-full">
                 <Card className="col-3 ml-5 mr-5 relative" title={"Сегодня"} subTitle={"27 января"}>
                     <ScrollPanel className="h-25rem">
                         {
                             data.map(el=>{
+                                console.log(DateService.getTodayDate())
                                 const elDate = el.completionTime.substring(8,10) + "-" +el.completionTime.substring(5,7) + "-" + el.completionTime.substring(0,4)
-                                if(todayString === elDate){
-                                    console.log(el)
+                                if(DateService.getTodayDate() === elDate){
                                     return(
                                         <>
                                             <div className="flex justify-content-between align-items-center">
                                                 <div className="flex align-items-center">
                                                     <h4>{el.title.length > 20 ? el.title.substring(0,20) + "..." : el.title}</h4>
-                                                    <i onClick={()=>setEditing(true)} className="pi pi-pencil cursor-pointer ml-4"></i>
+                                                    <i onClick={handleEdit} className="pi pi-pencil cursor-pointer ml-4"></i>
                                                 </div>
                                                 <Checkbox checked={el.status} className="mr-3"></Checkbox>
                                             </div>
@@ -100,7 +112,7 @@ const Home = () => {
                             })
                         }
                     </ScrollPanel>
-                    <Button onClick={()=>setEditing(true)} className="w-2rem h-2rem button_position md:absolute flex align-items-center justify-content-center" icon="pi pi-plus"/>
+                    <Button onClick={()=>setCreatingNew(true)} className="w-2rem h-2rem button_position md:absolute flex align-items-center justify-content-center" icon="pi pi-plus"/>
                     <ProgressBar className="mt-5" value={50}></ProgressBar>
                 </Card>
                 <Card className="col-3 ml-5 mr-5 relative" title={"Завтра"} subTitle={"28 января"}>
@@ -108,8 +120,7 @@ const Home = () => {
                         {
                             data.map(el=>{
                                 const elDate = el.completionTime.substring(8,10) + "-" +el.completionTime.substring(5,7) + "-" + el.completionTime.substring(0,4)
-                                if(tomorrowString === elDate){
-                                    console.log(el)
+                                if(DateService.getTomorrowDate() === elDate){
                                     return(
                                         <>
                                             <div className="flex justify-content-between align-items-center">
@@ -146,8 +157,7 @@ const Home = () => {
                         {
                             data.map(el=>{
                                 const elDate = el.completionTime.substring(8,10) + "-" +el.completionTime.substring(5,7) + "-" + el.completionTime.substring(0,4)
-                                if(afterTommorowString  === elDate){
-                                    console.log(el)
+                                if(DateService.getAfterTomorrowDate()  === elDate){
                                     return(
                                         <>
                                             <div className="flex justify-content-between align-items-center">
@@ -183,16 +193,17 @@ const Home = () => {
             <Dialog header="Задача" visible={editing} style={{ width: '40vw' }} onHide={() => setEditing(false)}>
                 <div>
                     <form action="" className="flex flex-column gap-2">
-                        <InputText placeholder={"Название задачи"}></InputText>
-                        <InputText placeholder={"Описание задачи"}></InputText>
+                        <InputText value={taskForm.name} placeholder={"Название задачи"}></InputText>
+                        <InputText value={taskForm.description} placeholder={"Описание задачи"}></InputText>
+                        <Calendar value={taskForm.date} placeholder={"Дата выполения"}></Calendar>
                         <h3>Подзадачи</h3>
                         <div className="flex">
                             <InputText placeholder={"Введите подзадачу"}/>
                             <Button severity="success"  icon="pi pi-plus" className="ml-2"></Button>
                             <Button severity="danger" className="ml-2" icon="pi pi-trash"></Button>
                         </div>
-                        <ListBox value={selectedSubtask}
-                                 options={subtasks}
+                        <ListBox value={taskForm.selectedSubtask}
+                                 options={taskForm.subtasks}
                                  listStyle={{ maxHeight: '200px' }}
                                  onChange={(e)=>setSelectedSubtask(e.value)}
                                  optionLabel="name"
@@ -207,6 +218,21 @@ const Home = () => {
                     </form>
                 </div>
             </Dialog>
+            <Dialog header="Создание задачи" visible={creatingNew} style={{ width: '40vw' }} onHide={() => setCreatingNew(false)}>
+                <div>
+                    <form action="" className="flex flex-column gap-2">
+                        <InputText value={taskForm.name} placeholder={"Название задачи"}></InputText>
+                        <InputText value={taskForm.description}   placeholder={"Описание задачи"}></InputText>
+                        <Calendar value={taskForm.date} placeholder={"Дата выполения"}></Calendar>
+                        <div className="flex justify-content-end mt-2">
+                            <div>
+                                <Button severity="success" className="ml-2">Готово</Button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </Dialog>
+
 
         </div>
     );

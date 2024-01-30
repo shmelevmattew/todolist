@@ -5,6 +5,8 @@ import {Button} from "primereact/button";
 import {Link, useHistory} from "react-router-dom";
 import {Context} from "../index";
 import {observer} from "mobx-react-lite";
+import {Password} from "primereact/password";
+import {Message} from "primereact/message";
 const Auth = () => {
     const [loginData,setLoginData] = useState({
         email:"",
@@ -30,12 +32,7 @@ const Auth = () => {
 
     const {store} = useContext(Context);
     const history = useHistory()
-
-    useEffect(()=>{
-        if(store.isAuth){
-            history.push("/")
-        }
-    },[store.isAuth])
+    const [passwordsError,setPasswordsError] = useState(false)
 
     return (
         <div className="flex h-screen">
@@ -56,6 +53,7 @@ const Auth = () => {
                                         store.login(loginData.email,loginData.password).then((res)=>{
                                             console.log(res)
                                         })
+                                        history.push("/")
                                     }} label="Готово" />
                                 </div>
                             </form>
@@ -64,11 +62,24 @@ const Auth = () => {
                             <form action="" className="flex flex-column w-30rem gap-2">
                                 <InputText value={registrationData.name} onChange={(e)=>handleChangeRegistration(e,'name')} placeholder="Введите имя"/>
                                 <InputText value={registrationData.email} onChange={(e)=>handleChangeRegistration(e,'email')} placeholder="Введите Email"/>
-                                <InputText value={registrationData.password} onChange={(e)=>handleChangeRegistration(e,'password')} placeholder="Введите пароль"/>
-                                <InputText value={registrationData.passwordRepeat} onChange={(e)=>handleChangeRegistration(e,'passwordRepeat')} placeholder="Введите пароль повторно"/>
+                                <Password inputClassName={"col-12"} toggleMask feedback={false} value={registrationData.password} onChange={(e)=>handleChangeRegistration(e,'password')} placeholder="Введите пароль"/>
+                                <Password inputClassName={"col-12"} toggleMask feedback={false} value={registrationData.passwordRepeat} onChange={(e)=>handleChangeRegistration(e,'passwordRepeat')} placeholder="Введите пароль повторно"/>
+                                <Message className={passwordsError?"block":"hidden"} severity="error" text="Введены не одинаковые пароли"></Message>
                                 <div className="flex justify-content-end">
                                     <Button link><Link to={"/"}>Вы забыли пароль?</Link></Button>
-                                    <Button label="Готово" />
+                                    <Button onClick={(e) => {
+                                        e.preventDefault()
+                                        if (registrationData.password != registrationData.passwordRepeat){
+                                            setPasswordsError(true)
+                                            return
+                                        }
+                                        store.registration(registrationData.name,registrationData.email,registrationData.password).then((res)=>{
+                                            console.log(res)
+                                        })
+                                        history.push("/")
+                                        setPasswordsError(false)
+                                    }}  label="Готово" />
+
                                 </div>
                             </form>
                         </TabPanel>
