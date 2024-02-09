@@ -15,10 +15,11 @@ import ToDoService from "../Services/ToDoService"
 import {Calendar} from "primereact/calendar";
 import DateService from "../Services/DateService"
 import {Context} from "../index";
+import date from "date-and-time";
 const Home = () => {
     const tabs= useContext(MenuContext)
-    const store = useContext(Context)
-
+    const {store} = useContext(Context)
+    const [refresh,setRefresh] = useState(0)
     const [editing,setEditing] = useState(false)
     const [creatingNew,setCreatingNew] = useState(false)
 
@@ -26,7 +27,7 @@ const Home = () => {
     })
 
     const [newTask,setNewTask] = useState({
-        name:"",
+        title:"",
         description:"",
         date:""
     })
@@ -34,7 +35,6 @@ const Home = () => {
     const [selectedSubtask,setSelectedSubtask] = useState(undefined)
     const [data,setData] = useState([])
     const history = useHistory();
-    const today = new Date()
     const subtasks = [
         { name: 'Подзадача 1', code: 'NY' },
         { name: 'Подзадача 2', code: 'RM' },
@@ -42,6 +42,7 @@ const Home = () => {
         { name: 'Подзадача 4', code: 'IST' },
         { name: 'Подзадача 5', code: 'PRS' }
     ];
+    const [newSubtask,setNewSubtask] = useState("")
 
     useEffect(()=>{
         if(!store.isAuth){
@@ -53,17 +54,41 @@ const Home = () => {
         ToDoService.getAllTasks().then(function(res){
             const responseData = res.data
             setData(responseData)
-            console.log(responseData)
         })
-    },[setData])
+    },[setData,refresh])
 
     function handleEdit(task){
+        task.date = new Date (task.completionDate.substring(0,4),task.completionDate.substring(5,7),task.completionDate.substring(8,10))
         setTaksForm(task)
-        console.log(taskForm)
         setEditing(true)
+        console.log(taskForm)
     }
 
+    function handleCreateChange(e,target){
+        setNewTask((prev)=>{
+            return {
+                ...prev,
+                [target]:e.target.value
+            }
+        })
+    }
+    function nullifyNewTask(){
+        setNewTask({
+            title:"",
+            description:"",
+            date:""
+        })
+    }
 
+    function handleFormChange(e,target) {
+        setTaksForm((prev) => {
+                return {
+                    ...prev,
+                    [target]: e.target.value
+                }
+            }
+        )
+    }
 
     return (
         <div className="h-screen root">
@@ -71,25 +96,20 @@ const Home = () => {
                      activeIndex={tabs.activeTab}
                      onTabChange={(e) => {
                          tabs.setActiveTab(e.index);
-                         if(tabs.activeTab.label == "Выход"){
-                             store.logout()
-                             tabs.setActiveTab(0)
-                         }
+                         history.push(tabs.data[e.index].redirectUrl);
                      }}/>
             <div className="flex align-items-start justify-content-center mt-8 h-full">
-                <Card className="col-3 ml-5 mr-5 relative" title={"Сегодня"} subTitle={"27 января"}>
+                <Card className="col-3 ml-5 mr-5 relative" title={"Сегодня"} subTitle={DateService.getTodayDate()}>
                     <ScrollPanel className="h-25rem">
                         {
                             data.map(el=>{
-                                console.log(DateService.getTodayDate())
-                                const elDate = el.completionTime.substring(8,10) + "-" +el.completionTime.substring(5,7) + "-" + el.completionTime.substring(0,4)
-                                if(DateService.getTodayDate() === elDate){
+                                if(DateService.getTodayDate() === el.completionDate){
                                     return(
                                         <>
                                             <div className="flex justify-content-between align-items-center">
                                                 <div className="flex align-items-center">
                                                     <h4>{el.title.length > 20 ? el.title.substring(0,20) + "..." : el.title}</h4>
-                                                    <i onClick={handleEdit} className="pi pi-pencil cursor-pointer ml-4"></i>
+                                                    <i onClick={()=>handleEdit(el)} className="pi pi-pencil cursor-pointer ml-4"></i>
                                                 </div>
                                                 <Checkbox checked={el.status} className="mr-3"></Checkbox>
                                             </div>
@@ -115,12 +135,11 @@ const Home = () => {
                     <Button onClick={()=>setCreatingNew(true)} className="w-2rem h-2rem button_position md:absolute flex align-items-center justify-content-center" icon="pi pi-plus"/>
                     <ProgressBar className="mt-5" value={50}></ProgressBar>
                 </Card>
-                <Card className="col-3 ml-5 mr-5 relative" title={"Завтра"} subTitle={"28 января"}>
+                <Card className="col-3 ml-5 mr-5 relative" title={"Завтра"} subTitle={DateService.getTomorrowDate()}>
                     <ScrollPanel className="h-25rem">
                         {
                             data.map(el=>{
-                                const elDate = el.completionTime.substring(8,10) + "-" +el.completionTime.substring(5,7) + "-" + el.completionTime.substring(0,4)
-                                if(DateService.getTomorrowDate() === elDate){
+                                if(DateService.getTomorrowDate() === el.completionDate){
                                     return(
                                         <>
                                             <div className="flex justify-content-between align-items-center">
@@ -152,12 +171,11 @@ const Home = () => {
                     <Button onClick={()=>setEditing(true)} className="w-2rem h-2rem button_position md:absolute flex align-items-center justify-content-center" icon="pi pi-plus"/>
                     <ProgressBar className="mt-5" value={50}></ProgressBar>
                 </Card>
-                <Card className="col-3 ml-5 mr-5 relative" title={"Послезавтра"} subTitle={"29 января"}>
+                <Card className="col-3 ml-5 mr-5 relative" title={"Послезавтра"} subTitle={DateService.getAfterTomorrowDate()}>
                     <ScrollPanel className="h-25rem">
                         {
                             data.map(el=>{
-                                const elDate = el.completionTime.substring(8,10) + "-" +el.completionTime.substring(5,7) + "-" + el.completionTime.substring(0,4)
-                                if(DateService.getAfterTomorrowDate()  === elDate){
+                                if(DateService.getAfterTomorrowDate()  === el.completionDate){
                                     return(
                                         <>
                                             <div className="flex justify-content-between align-items-center">
@@ -193,17 +211,33 @@ const Home = () => {
             <Dialog header="Задача" visible={editing} style={{ width: '40vw' }} onHide={() => setEditing(false)}>
                 <div>
                     <form action="" className="flex flex-column gap-2">
-                        <InputText value={taskForm.name} placeholder={"Название задачи"}></InputText>
-                        <InputText value={taskForm.description} placeholder={"Описание задачи"}></InputText>
-                        <Calendar value={taskForm.date} placeholder={"Дата выполения"}></Calendar>
+                        <InputText value={taskForm.title} placeholder={"Название задачи"} onChange={(e)=> {
+                            handleFormChange(taskForm.title,"title")
+                        }}/>
+                        <InputText value={taskForm.description}
+                                   placeholder={"Описание задачи"}
+                                   onChange={(e)=> {
+                                       handleFormChange(taskForm.description,"description")
+                        }}/>
+                        <Calendar value={taskForm.date} dateFormat="yy.mm.dd" placeholder={"Дата выполения"}
+                                  onChange={(e)=> {
+                                      handleFormChange(taskForm.date,"description")
+                                  }}/>
                         <h3>Подзадачи</h3>
                         <div className="flex">
-                            <InputText placeholder={"Введите подзадачу"}/>
-                            <Button severity="success"  icon="pi pi-plus" className="ml-2"></Button>
+                            <InputText value={newSubtask}
+                                       placeholder={"Введите подзадачу"}
+                                       onChange={(e)=>setNewSubtask((e.target.value))}
+                                       />
+                            <Button severity="success"  icon="pi pi-plus" className="ml-2" onClick={(e)=>{
+                                e.preventDefault()
+                                console.log(newSubtask,DateService.formatInputDate(taskForm.date),taskForm.id)
+                                ToDoService.createSubtask(newSubtask,"",DateService.formatInputDate(taskForm.date),taskForm.id)
+                            }}></Button>
                             <Button severity="danger" className="ml-2" icon="pi pi-trash"></Button>
                         </div>
                         <ListBox value={taskForm.selectedSubtask}
-                                 options={taskForm.subtasks}
+                                 options={taskForm.subItems}
                                  listStyle={{ maxHeight: '200px' }}
                                  onChange={(e)=>setSelectedSubtask(e.value)}
                                  optionLabel="name"
@@ -218,15 +252,29 @@ const Home = () => {
                     </form>
                 </div>
             </Dialog>
+
             <Dialog header="Создание задачи" visible={creatingNew} style={{ width: '40vw' }} onHide={() => setCreatingNew(false)}>
                 <div>
                     <form action="" className="flex flex-column gap-2">
-                        <InputText value={taskForm.name} placeholder={"Название задачи"}></InputText>
-                        <InputText value={taskForm.description}   placeholder={"Описание задачи"}></InputText>
-                        <Calendar value={taskForm.date} placeholder={"Дата выполения"}></Calendar>
+                        <InputText value={newTask.title}
+                                   onChange={(e)=>{handleCreateChange(e,"title")}}
+                                   placeholder={"Название задачи"}/>
+                        <InputText value={newTask.description}
+                                   onChange={(e)=>{handleCreateChange(e,"description")}}
+                                   placeholder={"Описание задачи"}/>
+                        <Calendar dateFormat="yy.mm.dd" value={newTask.date}
+                                  onChange={(e)=>{handleCreateChange(e,"date")}}
+                                  placeholder={"Дата выполения"} />
+
                         <div className="flex justify-content-end mt-2">
                             <div>
-                                <Button severity="success" className="ml-2">Готово</Button>
+                                <Button severity="success" className="ml-2" onClick={(e)=>{
+                                    e.preventDefault()
+                                    ToDoService.createTask(newTask.title,newTask.description,DateService.formatInputDate(newTask.date))
+                                    setRefresh(prev=>prev+1)
+                                    setCreatingNew(false)
+                                    nullifyNewTask()
+                                }} >Готово</Button>
                             </div>
                         </div>
                     </form>

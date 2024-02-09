@@ -1,21 +1,22 @@
+import date from "date-and-time";
 export default class DateService{
+
     static getTodayDate () {
-        const today = new Date()
-        return ('0' + today.getDate()).slice(-2) + '.'
-            + ('0' + (today.getMonth()+1)).slice(-2) + '.'
-            + today.getFullYear();
+        const today = new Date();
+        return date.format(today,"YYYY-MM-DD")
     }
     static getTomorrowDate(){
-        const today = new Date()
-        return ('0' + today.getDate() + 1).slice(-2) + '.'
-            + ('0' + (today.getMonth()+1)).slice(-2) + '.'
-            + today.getFullYear();
+        const today = new Date();
+        return date.format(date.addDays(today,1),"YYYY-MM-DD")
     }
-    static async getAfterTomorrowDate(){
-        const today = new Date()
-        return ('0' + today.getDate() + 2).slice(-2) + '.'
-            + ('0' + (today.getMonth()+1)).slice(-2) + '.'
-            + today.getFullYear();
+    static getAfterTomorrowDate(){
+       const today = new Date();
+        return date.format(date.addDays(today,2),"YYYY-MM-DD")
+    }
+    static formatInputDate(date){
+        return date.getFullYear() + '.'
+            + ('0' + (date.getMonth()+1)).slice(-2) + '.'
+            + ('0' + date.getDate()).slice(-2);
     }
 
 }

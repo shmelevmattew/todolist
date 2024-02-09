@@ -12,6 +12,7 @@ import {Dialog} from "primereact/dialog";
 import {Card} from "primereact/card";
 import {DataScroller} from "primereact/datascroller";
 import {Calendar} from "primereact/calendar";
+import DateService from "../Services/DateService";
 
 const Month = () => {
     const tabs= useContext(MenuContext)
@@ -29,7 +30,7 @@ const Month = () => {
     const data = [
         {
             id:1,
-            date:"27 Января",
+            date:DateService.getTodayDate(),
             task:[
                 {
                     name:"Поиграть там",
@@ -40,7 +41,7 @@ const Month = () => {
         },
         {
             id:1,
-            date:"28 Января",
+            date:DateService.getTomorrowDate(),
             task:[
                 {
                     name:"Поиграть там",
@@ -172,7 +173,7 @@ const Month = () => {
                             <div>
                                 <Button severity="success" className="ml-2">Готово</Button>
                             </div>
-                        </div>4]
+                        </div>
                     </form>
                 </div>
             </Dialog>
