@@ -25,10 +25,10 @@ export default class ToDoService{
     static async createSubtask(title,completitonDate,parentId){
         console.log(completitonDate)
         return $api.post('/ToDoItem/CreateSubItem',{
-            title,
+            title:title,
             description:"",
-            completitonDate,
-            parentId
+            completitonDate:completitonDate,
+            parentId:parentId
         })
     }
     static async getTaskById(){

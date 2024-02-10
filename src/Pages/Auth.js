@@ -50,10 +50,9 @@ const Auth = () => {
                                     <Button link><Link to={"/"}>Вы забыли пароль?</Link></Button>
                                     <Button onClick={(e) => {
                                         e.preventDefault()
-                                        store.login(loginData.email,loginData.password).then((res)=>{
-                                            console.log(res)
+                                        store.login(loginData.email,loginData.password).then(()=>{
+                                            history.push("/")
                                         })
-                                        history.push("/")
                                     }} label="Готово" />
                                 </div>
                             </form>
@@ -73,11 +72,9 @@ const Auth = () => {
                                             setPasswordsError(true)
                                             return
                                         }
-                                        store.registration(registrationData.name,registrationData.email,registrationData.password).then((res)=>{
-                                            console.log(res)
+                                        store.registration(registrationData.name,registrationData.email,registrationData.password).then(()=>{
+                                            history.push("/")
                                         })
-                                        history.push("/")
-                                        setPasswordsError(false)
                                     }}  label="Готово" />
 
                                 </div>

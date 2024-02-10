@@ -36,6 +36,7 @@ export default class Store {
         try {
             const response = await AuthService.login(email, password);
             localStorage.setItem('token', response.data.accessToken);
+            localStorage.setItem('refreshToken', response.data.refreshToken);
             this.setAuth(true);
             this.setUser(response.data.user);
             this.setUserId(response.data.id);
@@ -48,6 +49,7 @@ export default class Store {
         try {
             const response = await AuthService.registration(name,email, password);
             localStorage.setItem('token', response.data.accessToken);
+            localStorage.setItem('refreshToken', response.data.refreshToken);
             this.setAuth(true);
             this.setUser(response.data.user);
         } catch (e) {
@@ -60,6 +62,7 @@ export default class Store {
             const response = await AuthService.logout();
             console.log(response)
             localStorage.removeItem('token');
+            localStorage.removeItem('refreshToken');
             this.setAuth(false);
             this.setUser();
         } catch (e) {
@@ -73,6 +76,7 @@ export default class Store {
             const response = await axios.get(`${API_URL}/refresh`, {withCredentials: true})
             console.log(response);
             localStorage.setItem('token', response.data.accessToken);
+            localStorage.setItem('refreshToken', response.data.refreshToken);
             this.setAuth(true);
             this.setUser(response.data.user);
         } catch (e) {

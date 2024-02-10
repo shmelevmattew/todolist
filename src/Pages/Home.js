@@ -52,8 +52,7 @@ const Home = () => {
 
     useEffect(()=>{
         ToDoService.getAllTasks().then(function(res){
-            const responseData = res.data
-            setData(responseData)
+            setData(res.data)
         })
     },[setData,refresh])
 
@@ -232,7 +231,7 @@ const Home = () => {
                             <Button severity="success"  icon="pi pi-plus" className="ml-2" onClick={(e)=>{
                                 e.preventDefault()
                                 console.log(newSubtask,DateService.formatInputDate(taskForm.date),taskForm.id)
-                                ToDoService.createSubtask(newSubtask,"",DateService.formatInputDate(taskForm.date),taskForm.id)
+                                ToDoService.createSubtask(newSubtask,DateService.formatInputDate(taskForm.date),taskForm.id)
                             }}></Button>
                             <Button severity="danger" className="ml-2" icon="pi pi-trash"></Button>
                         </div>
@@ -270,10 +269,11 @@ const Home = () => {
                             <div>
                                 <Button severity="success" className="ml-2" onClick={(e)=>{
                                     e.preventDefault()
-                                    ToDoService.createTask(newTask.title,newTask.description,DateService.formatInputDate(newTask.date))
-                                    setRefresh(prev=>prev+1)
-                                    setCreatingNew(false)
-                                    nullifyNewTask()
+                                    ToDoService.createTask(newTask.title,newTask.description,DateService.formatInputDate(newTask.date)).then(()=>{
+                                        setRefresh(prev=>prev+1)
+                                        setCreatingNew(false)
+                                        nullifyNewTask()
+                                    })
                                 }} >Готово</Button>
                             </div>
                         </div>
