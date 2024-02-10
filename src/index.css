@@ -23,3 +23,7 @@ body{
   top:30px;
   right:38px;
 }
+.p-datatable-wrapper{
+  height:600px;
+  background:white;
+}

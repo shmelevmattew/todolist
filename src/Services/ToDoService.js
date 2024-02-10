@@ -23,16 +23,26 @@ export default class ToDoService{
         })
     }
     static async createSubtask(title,completitonDate,parentId){
-        console.log(completitonDate)
         return $api.post('/ToDoItem/CreateSubItem',{
             title:title,
             description:"",
-            completitonDate:completitonDate,
+            completionDate:completitonDate,
             parentId:parentId
         })
     }
-    static async getTaskById(){
-        return $api.post
+    static async deleteSubtask(id){
+        return $api.delete(`/ToDoItem/DeleteItemById?id=${id}`)
+    }
+    static async deleteTask(id){
+        return $api.delete(`/ToDoItem/DeleteItemById?id=${id}`)
+    }
+    static async getToDoItemById(id){
+        return $api.get(`/ToDoItem/GetToDoItemById?id=${id}`)
+    }
+    static async updateToDoItem(){
+        return $api.put(`/ToDoItem/UpdateToDoItem`,{
+
+        })
     }
 
 }

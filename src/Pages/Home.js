@@ -57,10 +57,16 @@ const Home = () => {
     },[setData,refresh])
 
     function handleEdit(task){
-        task.date = new Date (task.completionDate.substring(0,4),task.completionDate.substring(5,7),task.completionDate.substring(8,10))
-        setTaksForm(task)
-        setEditing(true)
-        console.log(taskForm)
+        if (task.id){
+            ToDoService.getToDoItemById(task.id).then((res)=>{
+                let taskData = res.data
+                taskData.date = new Date (task.completionDate.substring(0,4),task.completionDate.substring(5,7),task.completionDate.substring(8,10))
+                setTaksForm(taskData)
+                setEditing(true)
+            })
+        }else{
+            setTaksForm(task)
+        }
     }
 
     function handleCreateChange(e,target){
@@ -80,6 +86,8 @@ const Home = () => {
     }
 
     function handleFormChange(e,target) {
+        console.log(e , target)
+        console.log(taskForm)
         setTaksForm((prev) => {
                 return {
                     ...prev,
@@ -87,6 +95,9 @@ const Home = () => {
                 }
             }
         )
+    }
+    function setChecked(id){
+
     }
 
     return (
@@ -144,7 +155,7 @@ const Home = () => {
                                             <div className="flex justify-content-between align-items-center">
                                                 <div className="flex align-items-center">
                                                     <h4>{el.title.length > 20 ? el.title.substring(0,20) + "..." : el.title}</h4>
-                                                    <i onClick={()=>setEditing(true)} className="pi pi-pencil cursor-pointer ml-4"></i>
+                                                    <i onClick={()=>handleEdit(el)} className="pi pi-pencil cursor-pointer ml-4"></i>
                                                 </div>
                                                 <Checkbox checked={el.status} className="mr-3"></Checkbox>
                                             </div>
@@ -180,7 +191,7 @@ const Home = () => {
                                             <div className="flex justify-content-between align-items-center">
                                                 <div className="flex align-items-center">
                                                     <h4>{el.title.length > 20 ? el.title.substring(0,20) + "..." : el.title}</h4>
-                                                    <i onClick={()=>setEditing(true)} className="pi pi-pencil cursor-pointer ml-4"></i>
+                                                    <i onClick={()=>handleEdit(el)} className="pi pi-pencil cursor-pointer ml-4"></i>
                                                 </div>
                                                 <Checkbox checked={el.status} className="mr-3"></Checkbox>
                                             </div>
@@ -211,16 +222,16 @@ const Home = () => {
                 <div>
                     <form action="" className="flex flex-column gap-2">
                         <InputText value={taskForm.title} placeholder={"Название задачи"} onChange={(e)=> {
-                            handleFormChange(taskForm.title,"title")
+                            handleFormChange(e,"title")
                         }}/>
                         <InputText value={taskForm.description}
                                    placeholder={"Описание задачи"}
                                    onChange={(e)=> {
-                                       handleFormChange(taskForm.description,"description")
+                                       handleFormChange(e,"description")
                         }}/>
                         <Calendar value={taskForm.date} dateFormat="yy.mm.dd" placeholder={"Дата выполения"}
                                   onChange={(e)=> {
-                                      handleFormChange(taskForm.date,"description")
+                                      handleFormChange(e,"date")
                                   }}/>
                         <h3>Подзадачи</h3>
                         <div className="flex">
@@ -230,22 +241,46 @@ const Home = () => {
                                        />
                             <Button severity="success"  icon="pi pi-plus" className="ml-2" onClick={(e)=>{
                                 e.preventDefault()
-                                console.log(newSubtask,DateService.formatInputDate(taskForm.date),taskForm.id)
-                                ToDoService.createSubtask(newSubtask,DateService.formatInputDate(taskForm.date),taskForm.id)
-                            }}></Button>
-                            <Button severity="danger" className="ml-2" icon="pi pi-trash"></Button>
+                                ToDoService.createSubtask(newSubtask,DateService.formatInputDate(taskForm.date),taskForm.id).then(()=>
+                                    {
+                                        setRefresh(prev=>prev+1)
+                                        handleEdit(taskForm)
+                                    }
+                                )
+                            }}>
+                            </Button>
+                            <Button severity="danger" className="ml-2" icon="pi pi-trash" onClick={(e)=> {
+                                e.preventDefault()
+                                ToDoService.deleteSubtask(selectedSubtask.id).then(()=>
+                                {
+                                    setRefresh(prev=> prev+1)
+                                    handleEdit(taskForm)
+                                })
+                            }}>
+                            </Button>
                         </div>
-                        <ListBox value={taskForm.selectedSubtask}
+                        <ListBox value={selectedSubtask}
                                  options={taskForm.subItems}
                                  listStyle={{ maxHeight: '200px' }}
-                                 onChange={(e)=>setSelectedSubtask(e.value)}
-                                 optionLabel="name"
+                                 onChange={(e)=>{
+                                     setSelectedSubtask(e.value)
+                                     console.log(selectedSubtask)
+                                 }}
+                                 optionLabel="title"
                                  filter>
                         </ListBox>
                         <div className="flex justify-content-between mt-5">
-                            <Button severity="danger" icon="pi pi-trash mr-2">Удалить задачу</Button>
+                            <Button severity="danger" icon="pi pi-trash mr-2" onClick={(e)=>{
+                                e.preventDefault()
+                                ToDoService.deleteTask(taskForm.id).then(()=>{
+                                    setRefresh(prev=>prev+1)
+                                    setEditing(false)
+                                })
+                            }}>Удалить задачу</Button>
                             <div>
-                                <Button severity="success" className="ml-2">Готово</Button>
+                                <Button severity="success" className="ml-2" onClick={()=>{
+
+                                }}>Готово</Button>
                             </div>
                         </div>
                     </form>
@@ -274,7 +309,8 @@ const Home = () => {
                                         setCreatingNew(false)
                                         nullifyNewTask()
                                     })
-                                }} >Готово</Button>
+                                }} >Готово
+                                </Button>
                             </div>
                         </div>
                     </form>

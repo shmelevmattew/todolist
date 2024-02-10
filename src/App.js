@@ -22,13 +22,13 @@ function App() {
         {
             id:1,
             label:"Ближайшее",
-            icon:"pi pi-list",
+            icon:"pi pi-calendar",
             redirectUrl:"/",
         },
         {
             id:2,
-            label:"Месяц",
-            icon:"pi pi-calendar",
+            label:"Таблица",
+            icon:"pi pi-table",
             redirectUrl:"/month",
         },
         {
