@@ -178,7 +178,10 @@ const Home = () => {
                             })
                         }
                     </ScrollPanel>
-                    <Button onClick={()=>setEditing(true)} className="w-2rem h-2rem button_position md:absolute flex align-items-center justify-content-center" icon="pi pi-plus"/>
+                    <Button
+                        onClick={()=>{
+                        setCreatingNew(true)
+                    }} className="w-2rem h-2rem button_position md:absolute flex align-items-center justify-content-center" icon="pi pi-plus"/>
                     <ProgressBar className="mt-5" value={50}></ProgressBar>
                 </Card>
                 <Card className="col-3 ml-5 mr-5 relative" title={"Послезавтра"} subTitle={DateService.getAfterTomorrowDate()}>
@@ -214,22 +217,29 @@ const Home = () => {
                             })
                         }
                     </ScrollPanel>
-                    <Button onClick={()=>setEditing(true)} className="w-2rem h-2rem button_position md:absolute flex align-items-center justify-content-center" icon="pi pi-plus"/>
+                    <Button onClick={()=>setCreatingNew(true)} className="w-2rem h-2rem button_position md:absolute flex align-items-center justify-content-center" icon="pi pi-plus"/>
                     <ProgressBar className="mt-5" value={50}></ProgressBar>
                 </Card>
             </div>
             <Dialog header="Задача" visible={editing} style={{ width: '40vw' }} onHide={() => setEditing(false)}>
                 <div>
                     <form action="" className="flex flex-column gap-2">
-                        <InputText value={taskForm.title} placeholder={"Название задачи"} onChange={(e)=> {
+                        <InputText value={taskForm.title}
+                                   required={true}
+                                   placeholder={"Название задачи"}
+                                   onChange={(e)=> {
                             handleFormChange(e,"title")
                         }}/>
                         <InputText value={taskForm.description}
+                                   required={true}
                                    placeholder={"Описание задачи"}
                                    onChange={(e)=> {
                                        handleFormChange(e,"description")
                         }}/>
-                        <Calendar value={taskForm.date} dateFormat="yy.mm.dd" placeholder={"Дата выполения"}
+                        <Calendar value={taskForm.date}
+                                  dateFormat="yy.mm.dd"
+                                  required={true}
+                                  placeholder={"Дата выполения"}
                                   onChange={(e)=> {
                                       handleFormChange(e,"date")
                                   }}/>
@@ -278,8 +288,14 @@ const Home = () => {
                                 })
                             }}>Удалить задачу</Button>
                             <div>
-                                <Button severity="success" className="ml-2" onClick={()=>{
-
+                                <Button severity="success" className="ml-2" onClick={(e)=>{
+                                    e.preventDefault()
+                                    taskForm.completionDate = (DateService.formatInputDate(taskForm.date))
+                                    ToDoService.updateToDoItem(taskForm).then(()=>{
+                                        setEditing(false)
+                                        setRefresh(prev=>prev+1)
+                                        console.log(taskForm)
+                                    })
                                 }}>Готово</Button>
                             </div>
                         </div>
@@ -291,12 +307,15 @@ const Home = () => {
                 <div>
                     <form action="" className="flex flex-column gap-2">
                         <InputText value={newTask.title}
+                                   required={true}
                                    onChange={(e)=>{handleCreateChange(e,"title")}}
                                    placeholder={"Название задачи"}/>
                         <InputText value={newTask.description}
+                                   required={true}
                                    onChange={(e)=>{handleCreateChange(e,"description")}}
                                    placeholder={"Описание задачи"}/>
                         <Calendar dateFormat="yy.mm.dd" value={newTask.date}
+                                  required={true}
                                   onChange={(e)=>{handleCreateChange(e,"date")}}
                                   placeholder={"Дата выполения"} />
 

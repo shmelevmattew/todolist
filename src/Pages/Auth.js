@@ -7,7 +7,11 @@ import {Context} from "../index";
 import {observer} from "mobx-react-lite";
 import {Password} from "primereact/password";
 import {Message} from "primereact/message";
+import {MenuContext} from "../Contexts/MenuContext";
 const Auth = () => {
+
+    const tabs= useContext(MenuContext)
+
     const [loginData,setLoginData] = useState({
         email:"",
         password:""
@@ -52,6 +56,7 @@ const Auth = () => {
                                         e.preventDefault()
                                         store.login(loginData.email,loginData.password).then(()=>{
                                             history.push("/")
+                                            tabs.setActiveTab(0)
                                         })
                                     }} label="Готово" />
                                 </div>
@@ -74,6 +79,7 @@ const Auth = () => {
                                         }
                                         store.registration(registrationData.name,registrationData.email,registrationData.password).then(()=>{
                                             history.push("/")
+                                            tabs.setActiveTab(0)
                                         })
                                     }}  label="Готово" />
 

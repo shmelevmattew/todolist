@@ -39,9 +39,9 @@ export default class ToDoService{
     static async getToDoItemById(id){
         return $api.get(`/ToDoItem/GetToDoItemById?id=${id}`)
     }
-    static async updateToDoItem(){
+    static async updateToDoItem(item){
         return $api.put(`/ToDoItem/UpdateToDoItem`,{
-
+            ...item
         })
     }
 
