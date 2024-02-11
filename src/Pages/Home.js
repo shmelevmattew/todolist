@@ -16,6 +16,7 @@ import {Calendar} from "primereact/calendar";
 import DateService from "../Services/DateService"
 import {Context} from "../index";
 import date from "date-and-time";
+import {set} from "mobx";
 const Home = () => {
     const tabs= useContext(MenuContext)
     const {store} = useContext(Context)
@@ -60,7 +61,7 @@ const Home = () => {
         if (task.id){
             ToDoService.getToDoItemById(task.id).then((res)=>{
                 let taskData = res.data
-                taskData.date = new Date (task.completionDate.substring(0,4),task.completionDate.substring(5,7),task.completionDate.substring(8,10))
+                taskData.date = new Date (task.completionDate.substring(0,4),task.completionDate.substring(5,7) - 1,task.completionDate.substring(8,10))
                 setTaksForm(taskData)
                 setEditing(true)
             })
@@ -121,7 +122,11 @@ const Home = () => {
                                                     <h4>{el.title.length > 20 ? el.title.substring(0,20) + "..." : el.title}</h4>
                                                     <i onClick={()=>handleEdit(el)} className="pi pi-pencil cursor-pointer ml-4"></i>
                                                 </div>
-                                                <Checkbox checked={el.status} className="mr-3"></Checkbox>
+                                                <Checkbox checked={el.status === 2}  onClick={()=>{
+                                                    ToDoService.changeTaskStatus(el.id,el.status === 2?0:2).then(()=>{
+                                                        setRefresh(prev=>prev+1)
+                                                    })
+                                                }}>className="mr-3"></Checkbox>
                                             </div>
                                             {
                                                 el.subItems.map((subitem)=>{
@@ -129,7 +134,11 @@ const Home = () => {
                                                         <>
                                                             <div className="flex justify-content-between align-items-center">
                                                                 <p className="ml-4">{subitem.title}</p>
-                                                                <Checkbox  checked={subitem.status} className="mr-3"></Checkbox>
+                                                                <Checkbox  checked={subitem.status === 2} onClick={()=>{
+                                                                    ToDoService.changeTaskStatus(subitem.id,subitem.status === 2?0:2).then(()=>{
+                                                                        setRefresh(prev=>prev+1)
+                                                                    })
+                                                                }} className="mr-3"></Checkbox>
                                                             </div>
                                                         </>
                                                     )
@@ -157,7 +166,11 @@ const Home = () => {
                                                     <h4>{el.title.length > 20 ? el.title.substring(0,20) + "..." : el.title}</h4>
                                                     <i onClick={()=>handleEdit(el)} className="pi pi-pencil cursor-pointer ml-4"></i>
                                                 </div>
-                                                <Checkbox checked={el.status} className="mr-3"></Checkbox>
+                                                <Checkbox checked={el.status === 2}  onClick={()=>{
+                                                    ToDoService.changeTaskStatus(el.id,el.status === 2?0:2).then(()=>{
+                                                        setRefresh(prev=>prev+1)
+                                                    })
+                                                }}>className="mr-3"></Checkbox>
                                             </div>
                                             {
                                                 el.subItems.map((subitem)=>{
@@ -165,7 +178,11 @@ const Home = () => {
                                                         <>
                                                             <div className="flex justify-content-between align-items-center">
                                                                 <p className="ml-4">{subitem.title}</p>
-                                                                <Checkbox  checked={subitem.status} className="mr-3"></Checkbox>
+                                                                <Checkbox  checked={subitem.status === 2} onClick={()=>{
+                                                                    ToDoService.changeTaskStatus(subitem.id,subitem.status === 2?0:2).then(()=>{
+                                                                        setRefresh(prev=>prev+1)
+                                                                    })
+                                                                }} className="mr-3"></Checkbox>
                                                             </div>
                                                         </>
                                                     )
@@ -196,7 +213,11 @@ const Home = () => {
                                                     <h4>{el.title.length > 20 ? el.title.substring(0,20) + "..." : el.title}</h4>
                                                     <i onClick={()=>handleEdit(el)} className="pi pi-pencil cursor-pointer ml-4"></i>
                                                 </div>
-                                                <Checkbox checked={el.status} className="mr-3"></Checkbox>
+                                                <Checkbox checked={el.status === 2}  onClick={()=>{
+                                                    ToDoService.changeTaskStatus(el.id,el.status === 2?0:2).then(()=>{
+                                                        setRefresh(prev=>prev+1)
+                                                    })
+                                                }}>className="mr-3"></Checkbox>
                                             </div>
                                             {
                                                 el.subItems.map((subitem)=>{
@@ -204,7 +225,11 @@ const Home = () => {
                                                         <>
                                                             <div className="flex justify-content-between align-items-center">
                                                                 <p className="ml-4">{subitem.title}</p>
-                                                                <Checkbox  checked={subitem.status} className="mr-3"></Checkbox>
+                                                                <Checkbox  checked={subitem.status === 2} onClick={()=>{
+                                                                    ToDoService.changeTaskStatus(subitem.id,subitem.status === 2?0:2).then(()=>{
+                                                                        setRefresh(prev=>prev+1)
+                                                                    })
+                                                                }} className="mr-3"></Checkbox>
                                                             </div>
                                                         </>
                                                     )

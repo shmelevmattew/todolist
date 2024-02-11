@@ -44,5 +44,11 @@ export default class ToDoService{
             ...item
         })
     }
+    static async changeTaskStatus(id,status){
+        return $api.put(`/ToDoItem/ChangeToDoItemStatus`,{
+            id:id,
+            status:status
+        })
+    }
 
 }
